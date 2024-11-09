@@ -8,7 +8,10 @@
 import SwiftUI
 
 struct ContentView: View {
+    
+    @State var logManager = LogManager()
     var body: some View {
+        @Bindable var logManager = logManager
         VStack {
           
             TabView {
