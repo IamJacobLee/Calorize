@@ -11,22 +11,22 @@ struct HistoryView: View {
     }
 }
 
-struct AverageCalories: Identifiable {
+struct AverageCalories: Identifiable, Codable {
     var id = UUID()
-    var day: String
+    var name: String
     var calories: Int
 }
 @Observable
 class ViewModel {
     // 3.
     var data: [AverageCalories] = [
-        AverageCalories(day: "Monday", calories: 100),
-        AverageCalories(day: "Tuesday", calories: 120),
-        AverageCalories(day: "Wednesday", calories: 140),
-        AverageCalories(day: "Thursday", calories: 160),
-        AverageCalories(day: "Friday", calories: 180),
-        AverageCalories(day: "Saturday", calories: 210),
-        AverageCalories(day: "Sunday", calories: 240),
+        AverageCalories(name: "Monday", calories: 100),
+        AverageCalories(name: "Tuesday", calories: 120),
+        AverageCalories(name: "Wednesday", calories: 140),
+        AverageCalories(name: "Thursday", calories: 160),
+        AverageCalories(name: "Friday", calories: 180),
+        AverageCalories(name: "Saturday", calories: 210),
+        AverageCalories(name: "Sunday", calories: 240),
     ]
 }
 struct ChartView: View {
@@ -40,7 +40,7 @@ struct ChartView: View {
             // 2.
             LineMark(
                 // 3.
-                x: .value("Month", $0.day),
+                x: .value("Month", $0.name),
                 y: .value("Total", $0.calories)
             )
         }
