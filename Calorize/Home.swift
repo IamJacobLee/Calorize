@@ -16,6 +16,7 @@ struct HomeView: View {
 struct Logsheet: View {
     @Environment(\.dismiss) var dismiss
     var body: some View {
+      
         Button("Save") {
             dismiss()
         }

@@ -17,13 +17,13 @@ struct AverageCalories: Identifiable, Codable {
 class ViewModel {
     // 3.
     var data: [AverageCalories] = [
-        AverageCalories(name: "Monday", calories: 100),
-        AverageCalories(name: "Tuesday", calories: 120),
-        AverageCalories(name: "Wednesday", calories: 140),
-        AverageCalories(name: "Thursday", calories: 160),
-        AverageCalories(name: "Friday", calories: 180),
-        AverageCalories(name: "Saturday", calories: 210),
-        AverageCalories(name: "Sunday", calories: 240),
+        AverageCalories(name: "Mon", calories: 1500),
+        AverageCalories(name: "Tue", calories: 1700),
+        AverageCalories(name: "Wed", calories: 1400),
+        AverageCalories(name: "Thu", calories: 1600),
+        AverageCalories(name: "Fri", calories: 1800),
+        AverageCalories(name: "Sat", calories: 2100),
+        AverageCalories(name: "Sun", calories: 2400),
     ]
 }
 struct ChartView: View {

@@ -4,7 +4,12 @@ import Charts
 import Observation
 struct HistoryView: View {
     var body: some View{
-            Text("History")
+        NavigationStack {
+            List {
+                ChartView(dataCollection: ViewModel())
+            }
+            .navigationTitle("History")
+        }
                 .font(.title)
                 .padding()
                 .bold()
