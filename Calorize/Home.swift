@@ -7,16 +7,22 @@
 import SwiftUI
 
 struct HomeView: View {
-    
     @State private var showLogsheet = false
     var body: some View {
-        Text("Home")
-        Button("Log") {
-            showLogsheet.toggle()
-        }
-        .sheet(isPresented: $showLogsheet){
-            Logsheet()
-                .presentationDetents([.medium])
+            Gauge(value:0.5) {
+                Text("Yay")
+                    .font(.largeTitle)
+            }
+            .gaugeStyle(.accessoryCircularCapacity)
+            .scaleEffect(3)
+
+            Text("Home")
+            Button("Log") {
+                showLogsheet.toggle()
+            }
+            .sheet(isPresented: $showLogsheet){
+                Logsheet()
+                    .presentationDetents([.medium])
         }
     }
 }
