@@ -6,7 +6,7 @@ struct HistoryView: View {
     var body: some View{
         NavigationStack {
             List {
-                ChartView(dataCollection: ViewModel())
+          
             }
             .navigationTitle("History")
         }

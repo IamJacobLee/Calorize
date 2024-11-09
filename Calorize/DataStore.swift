@@ -7,9 +7,10 @@
 
 import SwiftUI
 
-struct NewLog: Identifiable, Codable {
+struct NewLog: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
     var calories: Int
+    var date: Date
 }
 
