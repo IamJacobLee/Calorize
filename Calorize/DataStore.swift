@@ -6,7 +6,7 @@
 //
 
 import SwiftUI
-struct Log: Identifiable {
+struct Log: Identifiable, Codable {
     var id = UUID()
     var name: String
     var calories: Int
@@ -21,7 +21,12 @@ struct RecentsView: View {
     var body: some View {
         NavigationStack {
             List(Logs) { Log in
-                Text(Log.name)
+                HStack {
+                    Text(Log.name)
+                    Spacer()
+            
+                    
+                }
             }
             .navigationTitle("Recents")
         }
