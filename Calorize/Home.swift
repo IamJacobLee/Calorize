@@ -34,7 +34,7 @@ struct Logsheet: View {
     @State var emoji: String = ""
     @State var tagColor: Color = .red
     @Environment(\.dismiss) var dismiss
-    @State var logManager = LogManager()
+    
     var body: some View {
         Form {
             Section {
@@ -68,7 +68,7 @@ struct Logsheet: View {
             
             Section {
                 Button("Save") {
-                    logManager.logData.append(Log(name: name, calories: calories, date: Date()))
+                 
                     dismiss()
                 }
                 Button("Cancel", role: .destructive) {

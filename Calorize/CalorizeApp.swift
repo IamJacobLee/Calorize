@@ -9,11 +9,11 @@ import SwiftUI
 
 @main
 struct CalorizeApp: App {
-    @State var logManager = LogManager()
+
     var body: some Scene {
         WindowGroup {
             ContentView()
-                .environment(logManager)
+           
         }
     }
 }
