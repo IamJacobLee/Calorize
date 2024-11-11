@@ -7,20 +7,21 @@
 
 import SwiftUI
 
-struct FoodItem: Identifiable {
+struct FoodItem: Identifiable, Codable {
     let id = UUID()
     var name: String
     var calories: Int
     var emoji: String
-    var color: Color
+    var color: FoodItemColor
 }
 
 struct ContentView: View {
     @State private var isPresentingLogView = false
     @State private var totalCalories = 500
     @State private var calorieGoal = 2000
-    @State private var foodItems: [FoodItem] = []
     @State private var selectedFoodItem: FoodItem? = nil
+    
+    @State private var foodItemManager = FoodItemManager()
     
     var body: some View {
         TabView {
@@ -50,14 +51,14 @@ struct ContentView: View {
                     FoodIcon(icon: "🍗")
                     FoodIcon(icon: "🍪")
                     
-                    ForEach(foodItems) { item in
+                    ForEach(foodItemManager.foodItems) { item in
                         Button(action: {
                             selectedFoodItem = item
                         }) {
                             Text(item.emoji)
                                 .font(.largeTitle)
                                 .padding()
-                                .background(item.color.opacity(0.2))
+                                .background(item.color.color.opacity(0.2))
                                 .clipShape(Circle())
                         }
                     }
@@ -73,7 +74,8 @@ struct ContentView: View {
                 Label("Home", systemImage: "house.fill")
             }
             .sheet(isPresented: $isPresentingLogView) {
-                LogFoodView(totalCalories: $totalCalories, foodItems: $foodItems)
+                LogFoodView(totalCalories: $totalCalories)
+                    .environment(foodItemManager)
             }
             
             Text("History")
@@ -118,20 +120,34 @@ struct FoodIcon: View {
             .clipShape(Circle())
     }
 }
+enum FoodItemColor: Codable, CaseIterable {
+    case red, orange, yellow, green, blue, purple, pink
+    
+    var color: Color {
+        switch self {
+        case .red: return .red
+        case .orange: return .orange
+        case .yellow: return .yellow
+        case .green: return .green
+        case .blue: return .blue
+        case .purple: return .purple
+        case .pink: return .pink
+        }
+    }
+}
 
 struct LogFoodView: View {
     @Binding var totalCalories: Int
-    @Binding var foodItems: [FoodItem]
+    @Environment(FoodItemManager.self) var foodItemManager
     @Environment(\.dismiss) var dismiss
     
     @State private var foodName = ""
     @State private var calories = ""
     @State private var isPreset = false
     @State private var selectedEmoji = "🍔"
-    @State private var selectedColor: Color = .red
+    @State private var selectedColor: FoodItemColor = .red
     
     let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗"]
-    let colors: [Color] = [.red, .orange, .yellow, .green, .blue, .purple, .pink]
     
     var body: some View {
         NavigationView {
@@ -161,12 +177,12 @@ struct LogFoodView: View {
                             }
                         }
                     }
-                                        VStack(alignment: .leading) {
+                    VStack(alignment: .leading) {
                         Text("Color")
                         HStack {
-                            ForEach(colors, id: \.self) { color in
+                            ForEach(FoodItemColor.allCases, id: \.hashValue) { color in
                                 Circle()
-                                    .fill(color)
+                                    .fill(color.color)
                                     .frame(width: 30, height: 30)
                                     .overlay(
                                         Circle()
@@ -185,7 +201,7 @@ struct LogFoodView: View {
                         if let caloriesToAdd = Int(calories) {
                             totalCalories += caloriesToAdd
                             let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor)
-                            foodItems.append(newItem)
+                            foodItemManager.foodItems.append(newItem)
                         }
                         dismiss()
                     }
@@ -211,7 +227,7 @@ struct FoodDetailView: View {
             Text(foodItem.emoji)
                 .font(.system(size: 100))
                 .padding()
-                .background(foodItem.color.opacity(0.2))
+                .background(foodItem.color.color.opacity(0.2))
                 .clipShape(Circle())
             
             Text(foodItem.name)
