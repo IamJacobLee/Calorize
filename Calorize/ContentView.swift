@@ -23,6 +23,7 @@ struct ContentView: View {
     
     @State private var foodItemManager = FoodItemManager()
     
+    @State private var showingGoalAlert = false
     var body: some View {
         TabView {
             VStack {
@@ -33,6 +34,19 @@ struct ContentView: View {
                 Text("\(totalCalories) of \(calorieGoal) calories")
                     .font(.title)
                     .padding(.top)
+                Button("Edit") {
+                           showingGoalAlert.toggle()
+                       }
+                .alert("Calorie Goal", isPresented: $showingGoalAlert)
+                {
+                    TextField(
+                        "Calories",
+                        value: $calorieGoal,
+                        formatter: NumberFormatter()
+                    )
+                }
+
+             
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 3), spacing: 20) {
                     Button(action: {
@@ -102,7 +116,7 @@ struct CircularProgressBar: View {
                 .foregroundColor(.blue)
                 .rotationEffect(Angle(degrees: -90))
             
-            Text("\(Int(progress * 2000))")
+            Text("\(Int(progress * 100))%")
                 .font(.largeTitle)
                 .bold()
         }
