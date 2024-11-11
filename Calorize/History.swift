@@ -3,11 +3,27 @@ import SwiftUI
 import Charts
 import Observation
 struct HistoryView: View {
-
+    @State private var foodItemManager = FoodItemManager()
     var body: some View{
-      
+        @Bindable var foodItemManager = foodItemManager
         NavigationStack {
-            
+            List(foodItemManager.foodItems) { FoodItem in
+                HStack{
+                    VStack {
+                        Text(FoodItem.name)
+                         
+                        Text(FoodItem.date, style: .date)
+                            .font(.subheadline)
+                            .opacity(0.5)
+                    }
+                    Spacer()
+                    Text("\(FoodItem.calories) Cal")
+                    
+                }
+               
+              
+                
+            }
             
             
         }

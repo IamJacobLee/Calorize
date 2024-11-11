@@ -220,7 +220,7 @@ struct LogFoodView: View {
                     Button("Save") {
                         if let caloriesToAdd = Int(calories) {
                             caloriesManager.totalSavedCalories += caloriesToAdd
-                            let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor)
+                            let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor, date: .now)
                             foodItemManager.foodItems.append(newItem)
                         }
                         dismiss()
