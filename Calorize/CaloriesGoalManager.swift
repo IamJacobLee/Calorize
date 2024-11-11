@@ -4,7 +4,9 @@ import Observation
 @Observable class CaloriesGoalManager {
     var calorieGoal: Int = 2000 {
         didSet {
-            save()
+            if calorieGoal>0{
+                save()
+            }
         }
     }
         

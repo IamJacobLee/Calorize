@@ -42,7 +42,11 @@ struct ContentView: View {
                 {
                     TextField(
                         "Calories",
-                        value: $caloriesGoalManager.calorieGoal,
+                        value: Binding(get: {caloriesGoalManager.calorieGoal}, set:{
+                            if $0>0 {
+                                caloriesGoalManager.calorieGoal = $0
+                            }
+                        }),
                         formatter: NumberFormatter()
                     )
                 }
