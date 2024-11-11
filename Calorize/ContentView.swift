@@ -18,21 +18,21 @@ struct FoodItem: Identifiable, Codable {
 
 struct ContentView: View {
     @State private var isPresentingLogView = false
-    @State private var calorieGoal = 2000
     @State private var selectedFoodItem: FoodItem? = nil
     
     @State private var caloriesManager = CaloriesManager()
+    @State private var caloriesGoalManager = CaloriesGoalManager()
     @State private var foodItemManager = FoodItemManager()
     
     @State private var showingGoalAlert = false
     var body: some View {
         TabView {
             VStack {
-                CircularProgressBar(progress: CGFloat(caloriesManager.totalSavedCalories) / CGFloat(calorieGoal))
+                CircularProgressBar(progress: CGFloat(caloriesManager.totalSavedCalories) / CGFloat(caloriesGoalManager.calorieGoal))
                     .frame(width: 150, height: 150)
                     .padding(.top)
                 
-                Text("\(caloriesManager.totalSavedCalories) of \(calorieGoal) calories")
+                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager) calories")
                     .font(.title)
                     .padding(.top)
                 Button("Edit") {
@@ -42,7 +42,7 @@ struct ContentView: View {
                 {
                     TextField(
                         "Calories",
-                        value: $calorieGoal,
+                        value: $caloriesGoalManager,
                         formatter: NumberFormatter()
                     )
                 }
@@ -220,7 +220,7 @@ struct LogFoodView: View {
                     Button("Save") {
                         if let caloriesToAdd = Int(calories) {
                             caloriesManager.totalSavedCalories += caloriesToAdd
-                            let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor)
+                            let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor, date: .now)
                             foodItemManager.foodItems.append(newItem)
                         }
                         dismiss()
