@@ -6,5 +6,19 @@
 //
 
 import SwiftUI
-
+struct LogDetailView: View {
+    @Binding var item: FoodItem
+    var body: some View {
+        Form {
+            Section {
+                TextField("Name", text: $item.name)
+                TextField("Calories", value: $item.calories, formatter: NumberFormatter())
+                    .keyboardType(.numberPad)
+                
+            }
+          
+         
+        }
+    }
+}
 
