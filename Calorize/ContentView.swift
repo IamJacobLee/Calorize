@@ -94,7 +94,7 @@ struct ContentView: View {
                     .environment(foodItemManager)
             }
             
-            Text("History")
+            HistoryView()
                 .tabItem {
                     Label("History", systemImage: "clock.fill")
                 }
