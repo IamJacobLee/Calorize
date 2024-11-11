@@ -13,25 +13,26 @@ struct FoodItem: Identifiable, Codable {
     var calories: Int
     var emoji: String
     var color: FoodItemColor
+    var date: Date
 }
 
 struct ContentView: View {
     @State private var isPresentingLogView = false
-    @State private var totalCalories = 500
     @State private var calorieGoal = 2000
     @State private var selectedFoodItem: FoodItem? = nil
     
+    @State private var caloriesManager = CaloriesManager()
     @State private var foodItemManager = FoodItemManager()
     
     @State private var showingGoalAlert = false
     var body: some View {
         TabView {
             VStack {
-                CircularProgressBar(progress: CGFloat(totalCalories) / CGFloat(calorieGoal))
+                CircularProgressBar(progress: CGFloat(caloriesManager.totalSavedCalories) / CGFloat(calorieGoal))
                     .frame(width: 150, height: 150)
                     .padding(.top)
                 
-                Text("\(totalCalories) of \(calorieGoal) calories")
+                Text("\(caloriesManager.totalSavedCalories) of \(calorieGoal) calories")
                     .font(.title)
                     .padding(.top)
                 Button("Edit") {
@@ -88,7 +89,8 @@ struct ContentView: View {
                 Label("Home", systemImage: "house.fill")
             }
             .sheet(isPresented: $isPresentingLogView) {
-                LogFoodView(totalCalories: $totalCalories)
+                LogFoodView()
+                    .environment(caloriesManager)
                     .environment(foodItemManager)
             }
             
@@ -151,7 +153,7 @@ enum FoodItemColor: Codable, CaseIterable {
 }
 
 struct LogFoodView: View {
-    @Binding var totalCalories: Int
+    @Environment(CaloriesManager.self) var caloriesManager
     @Environment(FoodItemManager.self) var foodItemManager
     @Environment(\.dismiss) var dismiss
     
@@ -170,41 +172,45 @@ struct LogFoodView: View {
                     TextField("Name", text: $foodName)
                     TextField("Calories", text: $calories)
                         .keyboardType(.numberPad)
-                    
+                }
+                
+                Section {
                     Toggle("Save As Preset", isOn: $isPreset)
                     
-                    // Emoji Picker
-                    VStack(alignment: .leading) {
-                        Text("Emoji")
-                        ScrollView(.horizontal, showsIndicators: false) {
-                            HStack {
-                                ForEach(emojis, id: \.self) { emoji in
-                                    Text(emoji)
-                                        .font(.largeTitle)
-                                        .padding()
-                                        .background(selectedEmoji == emoji ? Color.gray.opacity(0.2) : Color.clear)
-                                        .clipShape(Circle())
-                                        .onTapGesture {
-                                            selectedEmoji = emoji
-                                        }
+                    if isPreset {
+                        // Emoji Picker
+                        VStack(alignment: .leading) {
+                            Text("Emoji")
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack {
+                                    ForEach(emojis, id: \.self) { emoji in
+                                        Text(emoji)
+                                            .font(.largeTitle)
+                                            .padding()
+                                            .background(selectedEmoji == emoji ? Color.gray.opacity(0.2) : Color.clear)
+                                            .clipShape(Circle())
+                                            .onTapGesture {
+                                                selectedEmoji = emoji
+                                            }
+                                    }
                                 }
                             }
                         }
-                    }
-                    VStack(alignment: .leading) {
-                        Text("Color")
-                        HStack {
-                            ForEach(FoodItemColor.allCases, id: \.hashValue) { color in
-                                Circle()
-                                    .fill(color.color)
-                                    .frame(width: 30, height: 30)
-                                    .overlay(
-                                        Circle()
-                                            .stroke(selectedColor == color ? Color.black : Color.clear, lineWidth: 2)
-                                    )
-                                    .onTapGesture {
-                                        selectedColor = color
-                                    }
+                        VStack(alignment: .leading) {
+                            Text("Color")
+                            HStack {
+                                ForEach(FoodItemColor.allCases, id: \.hashValue) { color in
+                                    Circle()
+                                        .fill(color.color)
+                                        .frame(width: 30, height: 30)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(selectedColor == color ? Color.black : Color.clear, lineWidth: 2)
+                                        )
+                                        .onTapGesture {
+                                            selectedColor = color
+                                        }
+                                }
                             }
                         }
                     }
@@ -213,7 +219,7 @@ struct LogFoodView: View {
                 Section {
                     Button("Save") {
                         if let caloriesToAdd = Int(calories) {
-                            totalCalories += caloriesToAdd
+                            caloriesManager.totalSavedCalories += caloriesToAdd
                             let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor)
                             foodItemManager.foodItems.append(newItem)
                         }
