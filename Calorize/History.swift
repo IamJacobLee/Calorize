@@ -18,37 +18,46 @@ struct HistoryView: View {
         @Bindable var foodItemManager = foodItemManager
         NavigationStack {
             List {
-                Chart(foodItemArray) { item in
-                    // 2.
-                    LineMark(
-                        // 3.
-                        x: .value("Month", item.date),
-                        y: .value("Total", item.calories)
-                    )
+                Section {
+                    Picker("Interval", selection: $selectedInterval) {
+                        Text("Day").tag(86400.0)
+                        Text("Week").tag(604800.0)
+                        Text("Month").tag(2592000.0)
+                    }
+                  
+                    .pickerStyle(.segmented)
+                    Divider()
+                    Chart(foodItemArray) { item in
+                        // 2.
+                        LineMark(
+                            // 3.
+                            x: .value("Month", item.date),
+                            y: .value("Total", item.calories)
+                        )
+                    }
                 }
-                ForEach($foodItemManager.foodItems) { $FoodItem in
-                    NavigationLink{
-                        LogDetailView(item: $FoodItem)
-                    }label:{
-                        HStack{
-                            VStack(alignment: .leading) {
-                                Text(FoodItem.name)
-                                HStack{
-                                    Text(FoodItem.date, style: .date)
-                                    Text(FoodItem.date, style: .time)
+                
+                Section {
+                    ForEach($foodItemManager.foodItems) { $FoodItem in
+                        NavigationLink{
+                            LogDetailView(item: $FoodItem)
+                        }label:{
+                            HStack{
+                                VStack(alignment: .leading) {
+                                    Text(FoodItem.name)
+                                    HStack{
+                                        Text(FoodItem.date, style: .date)
+                                        Text(FoodItem.date, style: .time)
+                                    }
+                                    .font(.subheadline)
+                                    .opacity(0.5)
                                 }
-                                .font(.subheadline)
-                                .opacity(0.5)
+                                Spacer()
+                                Text("\(FoodItem.calories) Cal")
+                                
                             }
-                            Spacer()
-                            Text("\(FoodItem.calories) Cal")
-                            
                         }
                     }
-                    
-                    
-                    
-                    
                 }
             }
             
