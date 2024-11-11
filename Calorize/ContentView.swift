@@ -32,7 +32,7 @@ struct ContentView: View {
                     .frame(width: 150, height: 150)
                     .padding(.top)
                 
-                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager) calories")
+                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager.calorieGoal) calories")
                     .font(.title)
                     .padding(.top)
                 Button("Edit") {
@@ -42,7 +42,7 @@ struct ContentView: View {
                 {
                     TextField(
                         "Calories",
-                        value: $caloriesGoalManager,
+                        value: $caloriesGoalManager.calorieGoal,
                         formatter: NumberFormatter()
                     )
                 }

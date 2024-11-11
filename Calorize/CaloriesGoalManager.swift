@@ -2,7 +2,7 @@ import Foundation
 import Observation
 
 @Observable class CaloriesGoalManager {
-    var calorieGoal: Int = 0 {
+    var calorieGoal: Int = 2000 {
         didSet {
             save()
         }
