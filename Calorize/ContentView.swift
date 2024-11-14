@@ -1,10 +1,3 @@
-//
-//  ContentView.swift
-//  Calorize
-//
-//  Created by J Family on 9/11/24.
-//
-
 import SwiftUI
 
 struct FoodItem: Identifiable, Codable {
@@ -13,13 +6,19 @@ struct FoodItem: Identifiable, Codable {
     var calories: Int
     var date: Date
 }
+
 struct PresetFoodItem: Identifiable, Codable {
     var id = UUID()
     var name: String
     var calories: Int
     var emoji: String
     var color: FoodItemColor
+    
+    var uiColor: Color {
+        color.color
+    }
 }
+
 struct ContentView: View {
     @State private var isPresentingLogView = false
     @State private var selectedPreset: PresetFoodItem = PresetFoodItem(name: "", calories: 0, emoji: "", color: .yellow)
@@ -30,6 +29,7 @@ struct ContentView: View {
     @State private var presetManager = PresetManager()
     @State private var showingGoalAlert = false
     @State private var isPresentingPresetLogView = false
+    
     var body: some View {
         TabView {
             VStack {
@@ -40,23 +40,21 @@ struct ContentView: View {
                 Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager.calorieGoal) calories")
                     .font(.title)
                     .padding(.top)
+                
                 Button("Edit") {
-                           showingGoalAlert.toggle()
-                       }
-                .alert("Calorie Goal", isPresented: $showingGoalAlert)
-                {
+                    showingGoalAlert.toggle()
+                }
+                .alert("Calorie Goal", isPresented: $showingGoalAlert) {
                     TextField(
                         "Calories",
-                        value: Binding(get: {caloriesGoalManager.calorieGoal}, set:{
-                            if $0>0 {
+                        value: Binding(get: { caloriesGoalManager.calorieGoal }, set: {
+                            if $0 > 0 {
                                 caloriesGoalManager.calorieGoal = $0
                             }
                         }),
                         formatter: NumberFormatter()
                     )
                 }
-
-             
                 
                 LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 3), spacing: 20) {
                     Button(action: {
@@ -70,19 +68,15 @@ struct ContentView: View {
                     }
                     
                     ForEach(presetManager.presets) { preset in
-                        Button{
+                        Button {
                             isPresentingPresetLogView = true
                             selectedPreset = preset
-                        }label:{
-                            FoodIcon(icon: preset.emoji)
-                            
+                        } label: {
+                            FoodIcon(icon: preset.emoji, color: preset.uiColor)
                         }
                     }
                 }
                 .padding(.vertical, 30)
-//                .sheet(item: $selectedFoodItem) { item in
-//                    FoodDetailView(foodItem: item)
-//                }
                 
                 Spacer()
             }
@@ -95,14 +89,14 @@ struct ContentView: View {
                     .environment(foodItemManager)
                     .environment(presetManager)
             }
-            .sheet(isPresented: $isPresentingLogView) {
+            .sheet(isPresented: $isPresentingPresetLogView) {
                 LogFoodView(foodName: selectedPreset.name, calories: selectedPreset.calories, isPreset: false, selectedEmoji: selectedPreset.emoji, selectedColor: selectedPreset.color)
                     .environment(caloriesManager)
                     .environment(foodItemManager)
                     .environment(presetManager)
             }
             
-            
+            // History Tab
             HistoryView()
                 .tabItem {
                     Label("History", systemImage: "clock.fill")
@@ -127,24 +121,36 @@ struct CircularProgressBar: View {
                 .foregroundColor(.blue)
                 .rotationEffect(Angle(degrees: -90))
             
-            Text("\(Int(progress * 100))%")
-                .font(.largeTitle)
-                .bold()
+            ViewThatFits {
+                Text("\(Int(progress * 100))%")
+                    .font(.largeTitle)
+                    .bold()
+                
+                Text("\(Int(progress * 100))%")
+                    .font(.title)
+                    .bold()
+                
+                Text("\(Int(progress * 100))%")
+                    .font(.headline)
+                    .bold()
+            }
         }
     }
 }
 
 struct FoodIcon: View {
     var icon: String
+    var color: Color = Color.gray.opacity(0.2)
     
     var body: some View {
         Text(icon)
             .font(.largeTitle)
             .padding()
-            .background(Color.gray.opacity(0.2))
+            .background(color)
             .clipShape(Circle())
     }
 }
+
 enum FoodItemColor: Codable, CaseIterable {
     case red, orange, yellow, green, blue, purple, pink
     
@@ -188,7 +194,6 @@ struct LogFoodView: View {
                     Toggle("Save As Preset", isOn: $isPreset)
                     
                     if isPreset {
-                        // Emoji Picker
                         VStack(alignment: .leading) {
                             Text("Emoji")
                             ScrollView(.horizontal, showsIndicators: false) {
@@ -206,10 +211,11 @@ struct LogFoodView: View {
                                 }
                             }
                         }
+                        
                         VStack(alignment: .leading) {
                             Text("Color")
                             HStack {
-                                ForEach(FoodItemColor.allCases, id: \.hashValue) { color in
+                                ForEach(FoodItemColor.allCases, id: \.self) { color in
                                     Circle()
                                         .fill(color.color)
                                         .frame(width: 30, height: 30)
@@ -227,11 +233,11 @@ struct LogFoodView: View {
                 }
                 
                 Section {
-                    Button("Save") {
-                        if isPreset{
+                    Button("Log") {
+                        if isPreset {
                             presetManager.presets.append(PresetFoodItem(name: foodName, calories: calories, emoji: selectedEmoji, color: selectedColor))
                         }
-                        foodItemManager.foodItems.append(FoodItem(name: foodName, calories: calories, date: Date.now))
+                        foodItemManager.foodItems.append(FoodItem(name: foodName, calories: calories, date: Date()))
                         caloriesManager.totalSavedCalories += calories
                         dismiss()
                     }
@@ -248,31 +254,6 @@ struct LogFoodView: View {
         }
     }
 }
-
-//struct FoodDetailView: View {
-//    var foodItem: FoodItem
-//    
-//    var body: some View {
-//        VStack {
-//            Text(foodItem.emoji)
-//                .font(.system(size: 100))
-//                .padding()
-//                .background(foodItem.color.color.opacity(0.2))
-//                .clipShape(Circle())
-//            
-//            Text(foodItem.name)
-//                .font(.title)
-//                .padding(.top, 10)
-//            
-//            Text("\(foodItem.calories) calories")
-//                .font(.headline)
-//                .padding(.top, 5)
-//            
-//            Spacer()
-//        }
-//        .padding()
-//    }
-//}
 
 #Preview {
     ContentView()
