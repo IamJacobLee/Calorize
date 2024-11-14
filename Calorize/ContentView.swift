@@ -11,20 +11,25 @@ struct FoodItem: Identifiable, Codable {
     var id = UUID()
     var name: String
     var calories: Int
-    var emoji: String
-    var color: FoodItemColor
     var date: Date
 }
-
+struct PresetFoodItem: Identifiable, Codable {
+    var id = UUID()
+    var name: String
+    var calories: Int
+    var emoji: String
+    var color: FoodItemColor
+}
 struct ContentView: View {
     @State private var isPresentingLogView = false
-    @State private var selectedFoodItem: FoodItem? = nil
+    @State private var selectedPreset: PresetFoodItem = PresetFoodItem(name: "", calories: 0, emoji: "", color: .yellow)
     
     @State private var caloriesManager = CaloriesManager()
     @State private var caloriesGoalManager = CaloriesGoalManager()
     @State private var foodItemManager = FoodItemManager()
-    
+    @State private var presetManager = PresetManager()
     @State private var showingGoalAlert = false
+    @State private var isPresentingPresetLogView = false
     var body: some View {
         TabView {
             VStack {
@@ -64,28 +69,20 @@ struct ContentView: View {
                             .clipShape(Circle())
                     }
                     
-                    FoodIcon(icon: "🍔")
-                    FoodIcon(icon: "🍫")
-                    FoodIcon(icon: "🍕")
-                    FoodIcon(icon: "🍗")
-                    FoodIcon(icon: "🍪")
-                    
-                    ForEach(foodItemManager.foodItems) { item in
-                        Button(action: {
-                            selectedFoodItem = item
-                        }) {
-                            Text(item.emoji)
-                                .font(.largeTitle)
-                                .padding()
-                                .background(item.color.color.opacity(0.2))
-                                .clipShape(Circle())
+                    ForEach(presetManager.presets) { preset in
+                        Button{
+                            isPresentingPresetLogView = true
+                            selectedPreset = preset
+                        }label:{
+                            FoodIcon(icon: preset.emoji)
+                            
                         }
                     }
                 }
                 .padding(.vertical, 30)
-                .sheet(item: $selectedFoodItem) { item in
-                    FoodDetailView(foodItem: item)
-                }
+//                .sheet(item: $selectedFoodItem) { item in
+//                    FoodDetailView(foodItem: item)
+//                }
                 
                 Spacer()
             }
@@ -96,7 +93,15 @@ struct ContentView: View {
                 LogFoodView()
                     .environment(caloriesManager)
                     .environment(foodItemManager)
+                    .environment(presetManager)
             }
+            .sheet(isPresented: $isPresentingLogView) {
+                LogFoodView(foodName: selectedPreset.name, calories: selectedPreset.calories, isPreset: false, selectedEmoji: selectedPreset.emoji, selectedColor: selectedPreset.color)
+                    .environment(caloriesManager)
+                    .environment(foodItemManager)
+                    .environment(presetManager)
+            }
+            
             
             HistoryView()
                 .tabItem {
@@ -159,13 +164,14 @@ enum FoodItemColor: Codable, CaseIterable {
 struct LogFoodView: View {
     @Environment(CaloriesManager.self) var caloriesManager
     @Environment(FoodItemManager.self) var foodItemManager
+    @Environment(PresetManager.self) var presetManager
     @Environment(\.dismiss) var dismiss
     
-    @State private var foodName = ""
-    @State private var calories = ""
-    @State private var isPreset = false
-    @State private var selectedEmoji = "🍔"
-    @State private var selectedColor: FoodItemColor = .red
+    @State var foodName = ""
+    @State var calories = 0
+    @State var isPreset = false
+    @State var selectedEmoji = "🍔"
+    @State var selectedColor: FoodItemColor = .red
     
     let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗"]
     
@@ -174,7 +180,7 @@ struct LogFoodView: View {
             Form {
                 Section(header: Text("Log")) {
                     TextField("Name", text: $foodName)
-                    TextField("Calories", text: $calories)
+                    TextField("Calories", value: $calories, formatter: NumberFormatter())
                         .keyboardType(.numberPad)
                 }
                 
@@ -222,11 +228,11 @@ struct LogFoodView: View {
                 
                 Section {
                     Button("Save") {
-                        if let caloriesToAdd = Int(calories) {
-                            caloriesManager.totalSavedCalories += caloriesToAdd
-                            let newItem = FoodItem(name: foodName, calories: caloriesToAdd, emoji: selectedEmoji, color: selectedColor, date: .now)
-                            foodItemManager.foodItems.append(newItem)
+                        if isPreset{
+                            presetManager.presets.append(PresetFoodItem(name: foodName, calories: calories, emoji: selectedEmoji, color: selectedColor))
                         }
+                        foodItemManager.foodItems.append(FoodItem(name: foodName, calories: calories, date: Date.now))
+                        caloriesManager.totalSavedCalories += calories
                         dismiss()
                     }
                     .foregroundColor(.blue)
@@ -243,30 +249,30 @@ struct LogFoodView: View {
     }
 }
 
-struct FoodDetailView: View {
-    var foodItem: FoodItem
-    
-    var body: some View {
-        VStack {
-            Text(foodItem.emoji)
-                .font(.system(size: 100))
-                .padding()
-                .background(foodItem.color.color.opacity(0.2))
-                .clipShape(Circle())
-            
-            Text(foodItem.name)
-                .font(.title)
-                .padding(.top, 10)
-            
-            Text("\(foodItem.calories) calories")
-                .font(.headline)
-                .padding(.top, 5)
-            
-            Spacer()
-        }
-        .padding()
-    }
-}
+//struct FoodDetailView: View {
+//    var foodItem: FoodItem
+//    
+//    var body: some View {
+//        VStack {
+//            Text(foodItem.emoji)
+//                .font(.system(size: 100))
+//                .padding()
+//                .background(foodItem.color.color.opacity(0.2))
+//                .clipShape(Circle())
+//            
+//            Text(foodItem.name)
+//                .font(.title)
+//                .padding(.top, 10)
+//            
+//            Text("\(foodItem.calories) calories")
+//                .font(.headline)
+//                .padding(.top, 5)
+//            
+//            Spacer()
+//        }
+//        .padding()
+//    }
+//}
 
 #Preview {
     ContentView()

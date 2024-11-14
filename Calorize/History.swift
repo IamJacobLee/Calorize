@@ -18,25 +18,28 @@ struct HistoryView: View {
         @Bindable var foodItemManager = foodItemManager
         NavigationStack {
             List {
-                Section {
-                    Picker("Interval", selection: $selectedInterval) {
-                        Text("Day").tag(86400.0)
-                        Text("Week").tag(604800.0)
-                        Text("Month").tag(2592000.0)
+                if foodItemManager.foodItems.count>1{
+                    Section {
+                        Picker("Interval", selection: $selectedInterval) {
+                            Text("Day").tag(86400.0)
+                            Text("Week").tag(604800.0)
+                            Text("Month").tag(2592000.0)
+                        }
+                        
+                        .pickerStyle(.segmented)
+                        Divider()
+                        Chart(foodItemArray) { item in
+                            // 2.
+                            LineMark(
+                                // 3.
+                                x: .value("Month", item.date),
+                                y: .value("Total", item.calories)
+                            )
+                        }
                     }
-                  
-                    .pickerStyle(.segmented)
-                    Divider()
-                    Chart(foodItemArray) { item in
-                        // 2.
-                        LineMark(
-                            // 3.
-                            x: .value("Month", item.date),
-                            y: .value("Total", item.calories)
-                        )
-                    }
+                }else{
+                    Text("Log more food items to see a chart!")
                 }
-                
                 Section {
                     ForEach($foodItemManager.foodItems) { $FoodItem in
                         NavigationLink{
