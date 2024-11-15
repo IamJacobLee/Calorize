@@ -13,7 +13,7 @@ struct PresetFoodItem: Identifiable, Codable {
     var calories: Int
     var emoji: String
     var color: FoodItemColor
-    
+     
     var uiColor: Color {
         color.color
     }
@@ -37,7 +37,7 @@ struct ContentView: View {
                     .frame(width: 150, height: 150)
                     .padding(.top)
                 
-                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager.calorieGoal) calories")
+                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager.calorieGoal) calories today")
                     .font(.title)
                     .padding(.top)
                 

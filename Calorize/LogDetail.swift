@@ -14,6 +14,7 @@ struct LogDetailView: View {
                 TextField("Name", text: $item.name)
                 TextField("Calories", value: $item.calories, formatter: NumberFormatter())
                     .keyboardType(.numberPad)
+         
                 
             }
           

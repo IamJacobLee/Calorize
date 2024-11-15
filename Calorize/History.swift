@@ -41,7 +41,7 @@ struct HistoryView: View {
                     Text("Log more food items to see a chart!")
                 }
                 Section {
-                    ForEach($foodItemManager.foodItems) { $FoodItem in
+                    ForEach($foodItemManager.foodItems, editActions: [.all]) { $FoodItem in
                         NavigationLink{
                             LogDetailView(item: $FoodItem)
                         }label:{
