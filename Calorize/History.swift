@@ -7,9 +7,11 @@ struct HistoryView: View {
     @State private var selectedInterval = 86400.0
     var foodItemArray: [FoodItem]{
         var tempArray: [FoodItem] = []
-        for i in foodItemManager.foodItems{
-            if Date().timeIntervalSince(i.date)<selectedInterval{
-                tempArray.append(i)
+        var currentTotalCal = 0
+        for item in foodItemManager.foodItems{
+            if Date().timeIntervalSince(item.date)<selectedInterval{
+                currentTotalCal += item.calories
+                tempArray.append(FoodItem(name: "", calories: currentTotalCal, date: item.date))
             }
         }
         return tempArray
