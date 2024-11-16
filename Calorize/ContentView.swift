@@ -1,4 +1,5 @@
 import SwiftUI
+import Combine
 
 struct FoodItem: Identifiable, Codable {
     var id = UUID()
@@ -21,15 +22,15 @@ struct PresetFoodItem: Identifiable, Codable {
 
 struct ContentView: View {
     @State private var isPresentingLogView = false
-    @State private var selectedPreset: PresetFoodItem = PresetFoodItem(name: "", calories: 0, emoji: "", color: .yellow)
+    @State private var selectedPreset: PresetFoodItem?
     
     @State private var caloriesManager = CaloriesManager()
     @State private var caloriesGoalManager = CaloriesGoalManager()
     @State private var foodItemManager = FoodItemManager()
     @State private var presetManager = PresetManager()
     @State private var showingGoalAlert = false
-    @State private var isPresentingPresetLogView = false
-    
+    @State private var cancellable: AnyCancellable? // To store the timer
+
     var body: some View {
         TabView {
             VStack {
@@ -69,7 +70,6 @@ struct ContentView: View {
                     
                     ForEach(presetManager.presets) { preset in
                         Button {
-                            isPresentingPresetLogView = true
                             selectedPreset = preset
                         } label: {
                             FoodIcon(icon: preset.emoji, color: preset.uiColor)
@@ -84,13 +84,13 @@ struct ContentView: View {
                 Label("Home", systemImage: "house.fill")
             }
             .sheet(isPresented: $isPresentingLogView) {
-                LogFoodView()
+                LogFoodView(openedFromPresetItem: false)
                     .environment(caloriesManager)
                     .environment(foodItemManager)
                     .environment(presetManager)
             }
-            .sheet(isPresented: $isPresentingPresetLogView) {
-                LogFoodView(foodName: selectedPreset.name, calories: selectedPreset.calories, isPreset: false, selectedEmoji: selectedPreset.emoji, selectedColor: selectedPreset.color)
+            .sheet(item: $selectedPreset) { selectedPreset in
+                LogFoodView(foodName: selectedPreset.name, calories: selectedPreset.calories, isPreset: false, selectedEmoji: selectedPreset.emoji, selectedColor: selectedPreset.color, openedFromPresetItem: true)
                     .environment(caloriesManager)
                     .environment(foodItemManager)
                     .environment(presetManager)
@@ -101,6 +101,27 @@ struct ContentView: View {
                 .tabItem {
                     Label("History", systemImage: "clock.fill")
                 }
+        }
+        .onAppear(perform: startMidnightTimer)
+        .environment(foodItemManager)
+    }
+    
+    private func startMidnightTimer() {
+        // Create a timer that publishes every 60 seconds and checks if it's midnight
+        cancellable = Timer.publish(every: 60, on: .main, in: .common)
+            .autoconnect()
+            .sink { _ in
+                checkIfMidnightAndReset()
+            }
+    }
+    
+    private func checkIfMidnightAndReset() {
+        let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
+        
+        // Check if the time is midnight (00:00)
+        if now.hour == 0 && now.minute == 0 {
+            // Reset the total saved calories to zero
+            caloriesManager.totalSavedCalories = 0
         }
     }
 }
@@ -136,6 +157,7 @@ struct CircularProgressBar: View {
             }
         }
     }
+    
 }
 
 struct FoodIcon: View {
@@ -179,6 +201,8 @@ struct LogFoodView: View {
     @State var selectedEmoji = "🍔"
     @State var selectedColor: FoodItemColor = .red
     
+    @State var openedFromPresetItem: Bool
+    
     let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗"]
     
     var body: some View {
@@ -191,7 +215,9 @@ struct LogFoodView: View {
                 }
                 
                 Section {
-                    Toggle("Save As Preset", isOn: $isPreset)
+                    if !openedFromPresetItem {
+                        Toggle("Save As Preset", isOn: $isPreset)
+                    }
                     
                     if isPreset {
                         VStack(alignment: .leading) {

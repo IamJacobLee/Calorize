@@ -3,7 +3,7 @@ import SwiftUI
 import Charts
 import Observation
 struct HistoryView: View {
-    @State private var foodItemManager = FoodItemManager()
+    @Environment(FoodItemManager.self) private var foodItemManager
     @State private var selectedInterval = 86400.0
     var foodItemArray: [FoodItem]{
         var tempArray: [FoodItem] = []
@@ -28,13 +28,18 @@ struct HistoryView: View {
                         
                         .pickerStyle(.segmented)
                         Divider()
-                        Chart(foodItemArray) { item in
-                            // 2.
-                            LineMark(
-                                // 3.
-                                x: .value("Month", item.date),
-                                y: .value("Total", item.calories)
-                            )
+                        if foodItemArray.isEmpty{
+                            Text("No data to display!")
+                        }
+                        else {
+                            Chart(foodItemArray) { item in
+                                // 2.
+                                LineMark(
+                                    // 3.
+                                    x: .value("Month", item.date),
+                                    y: .value("Total", item.calories)
+                                )
+                            }
                         }
                     }
                 }else{

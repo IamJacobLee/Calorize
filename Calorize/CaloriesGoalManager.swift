@@ -33,7 +33,11 @@ import Observation
                 
         if let retrievedcalorieGoalData = try? Data(contentsOf: archiveURL),
            let calorieGoalDecoded = try? jsonDecoder.decode(Int.self, from: retrievedcalorieGoalData) {
-            calorieGoal = calorieGoalDecoded
+            if calorieGoalDecoded > 0 {
+                calorieGoal = calorieGoalDecoded
+            } else {
+                calorieGoal = 2000
+            }
         }
     }
 }
