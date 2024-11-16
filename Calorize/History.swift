@@ -5,15 +5,16 @@ import Observation
 struct HistoryView: View {
     @Environment(FoodItemManager.self) private var foodItemManager
     @State private var selectedInterval = 86400.0
-    var foodItemArray: [FoodItem]{
+    var foodItemArray: [FoodItem] {
         var tempArray: [FoodItem] = []
         var currentTotalCal = 0
-        for item in foodItemManager.foodItems{
+        for item in foodItemManager.foodItems.sorted(by: { $0.date < $1.date }) {
             if Date().timeIntervalSince(item.date)<selectedInterval{
                 currentTotalCal += item.calories
                 tempArray.append(FoodItem(name: "", calories: currentTotalCal, date: item.date))
             }
         }
+        print(tempArray.map({ $0.calories }))
         return tempArray
     }
     var body: some View{
