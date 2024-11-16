@@ -24,6 +24,8 @@ struct ContentView: View {
     @State private var isPresentingLogView = false
     @State private var selectedPreset: PresetFoodItem?
     
+    @AppStorage("lastLogin") private var lastLoginDate: Date = .distantPast
+    
     @State private var caloriesManager = CaloriesManager()
     @State private var caloriesGoalManager = CaloriesGoalManager()
     @State private var foodItemManager = FoodItemManager()
@@ -57,26 +59,28 @@ struct ContentView: View {
                     )
                 }
                 
-                LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 3), spacing: 20) {
-                    Button(action: {
-                        isPresentingLogView.toggle()
-                    }) {
-                        Image(systemName: "plus")
-                            .font(.largeTitle)
-                            .padding()
-                            .background(Color.gray.opacity(0.2))
-                            .clipShape(Circle())
-                    }
-                    
-                    ForEach(presetManager.presets) { preset in
-                        Button {
-                            selectedPreset = preset
-                        } label: {
-                            FoodIcon(icon: preset.emoji, color: preset.uiColor)
+                ScrollView {
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible(), spacing: 20), count: 4), spacing: 20) {
+                        Button(action: {
+                            isPresentingLogView.toggle()
+                        }) {
+                            Image(systemName: "plus")
+                                .font(.largeTitle)
+                                .padding()
+                                .background(Color.gray.opacity(0.2))
+                                .clipShape(Circle())
+                        }
+                        
+                        ForEach(presetManager.presets) { preset in
+                            Button {
+                                selectedPreset = preset
+                            } label: {
+                                FoodIcon(icon: preset.emoji, color: preset.uiColor)
+                            }
                         }
                     }
+                    .padding(.vertical, 30)
                 }
-                .padding(.vertical, 30)
                 
                 Spacer()
             }
@@ -107,21 +111,19 @@ struct ContentView: View {
     }
     
     private func startMidnightTimer() {
-        // Create a timer that publishes every 60 seconds and checks if it's midnight
-        cancellable = Timer.publish(every: 60, on: .main, in: .common)
-            .autoconnect()
-            .sink { _ in
-                checkIfMidnightAndReset()
-            }
-    }
-    
-    private func checkIfMidnightAndReset() {
-        let now = Calendar.current.dateComponents([.hour, .minute], from: Date())
-        
-        // Check if the time is midnight (00:00)
-        if now.hour == 0 && now.minute == 0 {
-            // Reset the total saved calories to zero
+        if !Calendar.current.isDateInToday(lastLoginDate) {
             caloriesManager.totalSavedCalories = 0
+            lastLoginDate = .now
+        }
+        // Create a timer that publishes every 60 seconds and checks if it's midnight
+        
+        let tomorrowDate = Calendar.current.startOfDay(for: Date.now.addingTimeInterval(86400))
+        
+        let secondsToMidnight = abs(Date.now.timeIntervalSince(tomorrowDate))
+        
+        Timer.scheduledTimer(withTimeInterval: secondsToMidnight, repeats: false) { _ in
+            caloriesManager.totalSavedCalories = 0
+            lastLoginDate = .now
         }
     }
 }
@@ -263,7 +265,7 @@ struct LogFoodView: View {
                         if isPreset {
                             presetManager.presets.append(PresetFoodItem(name: foodName, calories: calories, emoji: selectedEmoji, color: selectedColor))
                         }
-                        foodItemManager.foodItems.append(FoodItem(name: foodName, calories: calories, date: Date()))
+                        foodItemManager.foodItems.insert(FoodItem(name: foodName, calories: calories, date: Date()), at: 0)
                         caloriesManager.totalSavedCalories += calories
                         dismiss()
                     }
