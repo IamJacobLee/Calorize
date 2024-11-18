@@ -8,7 +8,7 @@ struct FoodItem: Identifiable, Codable {
     var date: Date
 }
 
-struct PresetFoodItem: Identifiable, Codable {
+struct PresetFoodItem: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
     var calories: Int
@@ -84,6 +84,7 @@ struct ContentView: View {
                                 selectedPreset = preset
                             } label: {
                                 FoodIcon(icon: preset.emoji, color: preset.uiColor)
+                                    
                             }
                         }
                     }
@@ -210,7 +211,6 @@ struct LogFoodView: View {
     @State var isPreset = false
     @State var selectedEmoji = "🍔"
     @State var selectedColor: FoodItemColor = .red
-    
     @State var openedFromPresetItem: Bool
     
     let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗"]
@@ -229,7 +229,7 @@ struct LogFoodView: View {
                         Toggle("Save As Preset", isOn: $isPreset)
                     }
                     
-                    if isPreset {
+                    if isPreset && !openedFromPresetItem{
                         VStack(alignment: .leading) {
                             Text("Emoji")
                             ScrollView(.horizontal, showsIndicators: false) {
@@ -283,6 +283,12 @@ struct LogFoodView: View {
                         dismiss()
                     }
                     .foregroundColor(.red)
+                    if openedFromPresetItem{
+                        Button("Delete this preset", role: .destructive){
+                            presetManager.presets.remove(at: presetManager.presets.firstIndex(where: {$0.name == foodName})!)
+                            dismiss()
+                        }
+                    }
                 }
             }
             .navigationTitle("Log Food")
