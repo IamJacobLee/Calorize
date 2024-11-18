@@ -39,7 +39,7 @@ struct HistoryView: View {
                                 // 2.
                                 LineMark(
                                     // 3.
-                                    x: .value("Month", item.date),
+                                    x: .value("Month", item.date.formatted()),
                                     y: .value("Total", item.calories)
                                 )
                             }

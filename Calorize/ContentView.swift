@@ -25,7 +25,15 @@ struct ContentView: View {
     @State private var selectedPreset: PresetFoodItem?
     
     @AppStorage("lastLogin") private var lastLoginDate: Date = .distantPast
-    
+    var currentTotal: Int {
+        var currentTotalCal: Int = 0
+        for item in foodItemManager.foodItems.sorted(by: { $0.date < $1.date }) {
+            if Date().timeIntervalSince(item.date)<86400{
+                currentTotalCal += item.calories
+            }
+        }
+        return currentTotalCal
+    }
     @State private var caloriesManager = CaloriesManager()
     @State private var caloriesGoalManager = CaloriesGoalManager()
     @State private var foodItemManager = FoodItemManager()
@@ -36,11 +44,11 @@ struct ContentView: View {
     var body: some View {
         TabView {
             VStack {
-                CircularProgressBar(progress: CGFloat(caloriesManager.totalSavedCalories) / CGFloat(caloriesGoalManager.calorieGoal))
+                CircularProgressBar(progress: CGFloat(currentTotal) / CGFloat(caloriesGoalManager.calorieGoal))
                     .frame(width: 150, height: 150)
                     .padding(.top)
                 
-                Text("\(caloriesManager.totalSavedCalories) of \(caloriesGoalManager.calorieGoal) calories today")
+                Text("\(currentTotal) of \(caloriesGoalManager.calorieGoal) calories today")
                     .font(.title)
                     .padding(.top)
                 
@@ -79,7 +87,7 @@ struct ContentView: View {
                             }
                         }
                     }
-                    .padding(.vertical, 30)
+                    .padding(30)
                 }
                 
                 Spacer()
