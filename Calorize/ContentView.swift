@@ -296,7 +296,6 @@ struct LogFoodView: View {
         }
     }
 }
-
 #Preview {
     ContentView()
 }

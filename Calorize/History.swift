@@ -17,6 +17,7 @@ struct HistoryView: View {
         print(tempArray.map({ $0.calories }))
         return tempArray
     }
+//    @State private var sample = false
     var body: some View{
         @Bindable var foodItemManager = foodItemManager
         NavigationStack {
@@ -71,8 +72,18 @@ struct HistoryView: View {
                     }
                 }
             }
-            
-            
+//            .alert("Load sample data? Warning: This cannot be undone!", isPresented: $sample) {
+//                Button("Replace", role: .destructive) {
+//                    foodItemManager.loadSampleData()
+//                }
+//            }
+//            .toolbar{
+//                ToolbarItem(placement: .navigationBarTrailing){
+//                    Button("Sample"){
+//                        sample.toggle()
+//                    }
+//                }
+//            }
             .navigationTitle("History")
             
             
