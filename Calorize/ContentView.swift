@@ -213,7 +213,7 @@ struct LogFoodView: View {
     @State var selectedColor: FoodItemColor = .red
     @State var openedFromPresetItem: Bool
     
-    let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗"]
+    let emojis = ["🍔", "🍫", "🍕", "🍗", "🍪", "🍎", "🥗", "🍞", "🥞", "🥡", "🍚", "🧋", "🍩", "🍰"]
     
     var body: some View {
         NavigationView {
@@ -242,6 +242,7 @@ struct LogFoodView: View {
                                             .clipShape(Circle())
                                             .onTapGesture {
                                                 selectedEmoji = emoji
+                                                print("Selected: \(selectedEmoji)")
                                             }
                                     }
                                 }
@@ -261,6 +262,7 @@ struct LogFoodView: View {
                                         )
                                         .onTapGesture {
                                             selectedColor = color
+                                            print("Selected: \(selectedColor)")
                                         }
                                 }
                             }
@@ -284,10 +286,13 @@ struct LogFoodView: View {
                     }
                     .foregroundColor(.red)
                     if openedFromPresetItem{
-                        Button("Delete this preset", role: .destructive){
-                            presetManager.presets.remove(at: presetManager.presets.firstIndex(where: {$0.name == foodName})!)
-                            dismiss()
-                        }
+                       
+                            Button("Delete this preset", role: .destructive){
+                                presetManager.presets.remove(at: presetManager.presets.firstIndex(where: {$0.name == foodName})!)
+                                print("preset deleted!")
+                                dismiss()
+                            }
+                        
                     }
                 }
             }
