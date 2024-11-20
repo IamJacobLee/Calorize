@@ -24,9 +24,9 @@ import Observation
         let encodedFoodItems = try? jsonEncoder.encode(foodItems)
         try? encodedFoodItems?.write(to: archiveURL, options: .noFileProtection)
     }
-    func loadSampleData() {
-        foodItems = FoodItem.sampleItems
-    }
+//    func loadSampleData() {
+//        foodItems = FoodItem.sampleItems
+//    }
     private func load() {
         let archiveURL = getArchiveURL()
         let jsonDecoder = JSONDecoder()
